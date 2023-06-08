@@ -12,3 +12,13 @@ catch(error){
 
 }
 }
+
+export const authenticateLogin=async(data)=>{
+    try{
+        return await axios.post(`${URl}/login`, data)
+
+    }catch(error){
+        console.log("error while  login", error)
+
+    }
+}

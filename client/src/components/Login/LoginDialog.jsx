@@ -1,8 +1,10 @@
-import React, { useState, useSyncExternalStore } from 'react'
+import React, { useContext, useState} from 'react'
 import Dialog from '@mui/material/Dialog';
 import { Box, Button, TextField, Typography } from '@mui/material';
 import styled from '@emotion/styled';
-import { authenticateSignup } from '../../service/api';
+import { authenticateSignup, authenticateLogin } from '../../service/api';
+import { DataContext } from '../../context/DataProvider';
+
 
 
 const Component=styled(Box)`
@@ -68,11 +70,17 @@ font-weight: 400;
 `
 
 const signupValues={
-    phonenumber:"",
+    username:"",
     password:'',
     firstname:"",
     lastname:"",
-    email:''}
+    email:''
+}
+
+const loginValues={
+    email:"",
+    password:""
+}
 
 
 const accountInitailValue={
@@ -92,6 +100,13 @@ const LoginDialog = ({login, setLogin}) => {
     const [account, ToggleAccount]=useState(accountInitailValue.Login)
     const [signup, setSignUp]= useState(signupValues)
 
+    const[logindetails, setLogindetails]=useState(loginValues)
+ 
+
+    const {loginUser, setLoginUser}= useContext(DataContext)
+
+    // const[setAccount]=useContext(DataContext)
+
     const toggleSignUp=()=>{
         console.log("clicked")
         ToggleAccount(accountInitailValue.signup)
@@ -104,13 +119,11 @@ const LoginDialog = ({login, setLogin}) => {
         
     }
 
-    const handlesignUp= async()=>{
-        console.log("clicked")
-      const response =  await authenticateSignup(signup)
+   
 
-      console.log(response, "response")
 
-    }
+
+
 
     console.log('values', signup)
 
@@ -119,12 +132,38 @@ const LoginDialog = ({login, setLogin}) => {
         const response =  await authenticateSignup(signup)
 
         console.log(response, "response")
+        setLoginUser(signup.username)
+        handleClose();
+
+
+        
+        // setAccount(signup.firstname)
+
+    }
+    const handleClose = () => {
+        setLogin(false);
+        
+    }
+
+    const handleLoginChange=(e)=>{
+        setLogindetails({...logindetails,[e.target.name]:e.target.value})
 
     }
 
+    console.log(logindetails)
+
+    const handleLogin=async()=>{
+        const response =  await authenticateLogin(logindetails)
+
+        console.log("login", response)
+        
+       
+    }
     
+
   return (<>
-    <Dialog open={login} onClose={()=>setLogin(false)} PaperProps={{sx:{maxWidth:"unset"}}}>
+  <Dialog open={login} onClose={handleClose} PaperProps={{ sx: { maxWidth: 'unset' } }}>
+
         <Component>
             <Box style={{display: "flex", height:"100%"}}>
 
@@ -134,10 +173,10 @@ const LoginDialog = ({login, setLogin}) => {
             </Image>
 
             {account.view==="login" ?   <Wrapper>
-                <TextField variant='standard' label='Enter Email/Mobile Number' onChange={handleChange}/>
-                <TextField variant='standard' label='Enter Password/' onChange={handleChange}/>
+                <TextField variant='standard' label='Enter Email/Mobile Number' name="email" onChange={handleLoginChange}/>
+                <TextField variant='standard' label='Enter Password' name="password" onChange={handleLoginChange}/>
                 <Text>By Continuing, you agree to flipkart Terms of use and Privacy Policy</Text>
-                <LoginButton>Login</LoginButton>
+                <LoginButton onClick={handleLogin}>Login</LoginButton>
                 <Typography>Or</Typography>
                 <RequestOtp>Request OTP</RequestOtp>
                 <CreateAccount onClick={toggleSignUp}>New To Flipkart? Create An Account</CreateAccount>
@@ -146,9 +185,9 @@ const LoginDialog = ({login, setLogin}) => {
               <Wrapper>
               <TextField variant='standard' label='Enter Email/Mobile Number' name="email" onChange={handleChange}/>
               <TextField variant='standard' label='Enter Password' name="password" onChange={handleChange}/>
-              <TextField variant='standard' label='Enter Phonenumber' name="phonenumber" onChange={handleChange}/>
+              <TextField variant='standard' label='Enter Username' name="username" onChange={handleChange}/>
               <TextField variant='standard' label='Enter firstname' name="firstname" onChange={handleChange}/>
-              <TextField variant='standard' label='Enter lastname/'name="lastname" onChange={handleChange}/>
+              <TextField variant='standard' label='Enter lastname'name="lastname" onChange={handleChange}/>
               <Text>By Continuing, you agree to flipkart Terms of use and Privacy Policy</Text>
             
        <LoginButton onClick={handleSignup}>Continue</LoginButton>
